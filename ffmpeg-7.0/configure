@@ -353,6 +353,7 @@ External library support:
   --disable-nvenc          disable Nvidia video encoding code [autodetect]
   --enable-omx             enable OpenMAX IL code [no]
   --enable-omx-rpi         enable OpenMAX IL code for Raspberry Pi [no]
+  --enable-sophgo          enable sophgo HW encoder [no]
   --enable-rkmpp           enable Rockchip Media Process Platform code [no]
   --disable-v4l2-m2m       disable V4L2 mem2mem code [autodetect]
   --disable-vaapi          disable Video Acceleration API (mainly Unix/Intel) code [autodetect]
@@ -2018,6 +2019,7 @@ HWACCEL_LIBRARY_LIST="
     mmal
     omx
     opencl
+    sophgo
 "
 
 DOCUMENT_LIST="
@@ -3277,6 +3279,7 @@ qsvenc_select="qsv"
 qsvvpp_select="qsv"
 vaapi_encode_deps="vaapi"
 v4l2_m2m_deps="linux_videodev2_h sem_timedwait"
+sophgo_deps=""
 
 bilateral_cuda_filter_deps="ffnvcodec"
 bilateral_cuda_filter_deps_any="cuda_nvcc cuda_llvm"
@@ -3323,6 +3326,7 @@ h264_mmal_decoder_deps="mmal"
 h264_nvenc_encoder_deps="nvenc"
 h264_nvenc_encoder_select="atsc_a53"
 h264_omx_encoder_deps="omx"
+h264_sophgo_encoder_deps="sophgo"
 h264_qsv_decoder_select="h264_mp4toannexb_bsf qsvdec"
 h264_qsv_encoder_select="atsc_a53 qsvenc"
 h264_rkmpp_decoder_deps="rkmpp"
@@ -7051,6 +7055,9 @@ enabled omx_rpi           && { test_code cc OMX_Core.h OMX_IndexConfigBrcmVideoR
                                die "ERROR: OpenMAX IL headers from raspberrypi/firmware not found"; } &&
                              enable omx
 enabled omx               && require_headers OMX_Core.h
+enabled sophgo            && { require_headers "cvi_sys.h cvi_vb.h cvi_venc.h" &&
+                               add_extralibs -lsys -lvenc
+                             }
 enabled openssl           && { { check_pkg_config openssl "openssl >= 3.0.0" openssl/ssl.h OPENSSL_init_ssl &&
                                  { enabled gplv3 || ! enabled gpl || enabled nonfree || die "ERROR: OpenSSL >=3.0.0 requires --enable-version3"; }; } ||
                                { enabled gpl && ! enabled nonfree && die "ERROR: OpenSSL <3.0.0 is incompatible with the gpl"; } ||
